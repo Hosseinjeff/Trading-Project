@@ -101,53 +101,10 @@ start_time = end_time - datetime.timedelta(days=30)
 logging.info(f"Fetching current data for {symbol} on timeframe {current_timeframe}...")
 current_data = fetch_data(symbol, current_timeframe, start_time, end_time)
 
-def validate_data(data, required_columns):
-    """
-    Validates the dataset for missing columns and handles missing values.
-    """
-    missing_columns = [col for col in required_columns if col not in data.columns]
-    if missing_columns:
-        logging.warning(f"Missing columns in the dataset: {missing_columns}")
-        return False
-    
-    # Check for missing values in required columns
-    if data[required_columns].isnull().any().any():
-        logging.warning("Missing values detected in the required columns.")
-        data.fillna(method='ffill', inplace=True)  # Forward-fill missing values
-        data.fillna(method='bfill', inplace=True)  # Backward-fill if needed
-        logging.info("Filled missing values using forward and backward fill.")
-    
-    return True
-
-# Validate current data
-required_columns = ['Time', 'open', 'high', 'low', 'close']
-logging.info("Validating current timeframe data...")
-if not validate_data(current_data, required_columns):
-    logging.error("Validation failed for current timeframe data. Exiting program.")
-    quit()
-
-higher_data = {}  # Initialize higher_data as a dictionary
-
+higher_data = {}
 for tf in higher_timeframes:
     logging.info(f"Fetching higher timeframe data for {symbol} on {tf}...")
-    
-    # Fetch and store the higher timeframe data
     higher_data[tf] = fetch_data(symbol, tf, start_time, end_time)
-    
-    # Validate the data
-    logging.info(f"Validating higher timeframe data for {tf}...")
-    if not validate_data(higher_data[tf], required_columns):
-        logging.error(f"Validation failed for higher timeframe {tf}. Exiting program.")
-        quit()
-
-    logging.info(f"Timeframe: {tf}, DataFrame columns: {list(higher_data[tf].columns)}")
-
-# Ensure 'higher_data' contains DataFrames before trying to create one
-if isinstance(higher_data, dict):
-    higher_data = {key: value for key, value in higher_data.items() if isinstance(value, pd.DataFrame)}
-
-# Convert to DataFrame if needed (this line is optional, depending on your goal)
-higher_data_df = pd.concat(higher_data.values(), axis=0, ignore_index=True)
 
 # Calculate technical indicators for each timeframe
 def calculate_indicators(data):
@@ -159,7 +116,6 @@ def calculate_indicators(data):
     logging.info("Indicators calculated.")
     return data
 
-
 # Calculate indicators for current timeframe
 logging.info(f"Calculating indicators for current timeframe {current_timeframe}...")
 current_data = calculate_indicators(current_data)
@@ -168,89 +124,18 @@ current_data = calculate_indicators(current_data)
 logging.info(f"Calculated indicators for {current_timeframe}:")
 logging.info(current_data[['Time', 'EMA_50', 'RSI', 'MACD', 'MACD_signal', 'MACD_histogram', 'Bollinger_upper', 'Bollinger_lower']].head())
 
-
 # Calculate indicators for higher timeframes and merge with current data
-import pandas as pd
+for tf, data in higher_data.items():
+    logging.info(f"Calculating indicators for higher timeframe {tf}...")
+    data = calculate_indicators(data)
+    logging.info(f"Merging higher timeframe {tf} data with current data...")
+    # Merge the higher timeframe indicators with the current data (align on 'Time' column)
+    current_data = pd.merge(current_data, data[['Time', f'EMA_50', f'RSI', f'MACD', f'MACD_signal', f'MACD_histogram', f'Bollinger_upper', f'Bollinger_lower']],
+                            on='Time', suffixes=('', f'_{tf}'))
 
-# Sample loop assuming 'current_data' and 'higher_data' are loaded DataFrames
-
-for timeframe in ['H1']:  # Example timeframe loop
-    print(f"Calculating indicators for higher timeframe {timeframe}...")
-    
-    # Example: Calculate and rename indicators for higher timeframe (dummy calculation)
-    # For the actual code, replace with your indicator calculation logic.
-    
-    print("Indicators calculated.")
-    # Ensure higher_data is a DataFrame
-    if isinstance(higher_data, dict):
-        higher_data = pd.DataFrame(higher_data)
-            
-    print(type(higher_data))  # Should print <class 'pandas.core.frame.DataFrame'>
-
-    # Rename columns (as seen in logs)
-    higher_data.rename(columns={'Time': f'Time_{timeframe}'}, inplace=True)
-
-    # Strip any extra spaces from column names
-    current_data.columns = current_data.columns.str.strip()
-    higher_data.columns = higher_data.columns.str.strip()
-
-    # Ensure both 'Time' columns are datetime types
-    current_data['Time'] = pd.to_datetime(current_data['Time'])
-    higher_data['Time_H1'] = pd.to_datetime(higher_data['Time_H1'])
-
-    print(f"Columns in data after renaming: {current_data.columns.tolist()}")
-
-    # Check if 'Time_H1' exists
-    if 'Time_H1' in higher_data.columns:
-        print("Column 'Time_H1' found. Proceeding to merge...")
-        
-        try:
-            current_data = pd.merge(current_data, higher_data, left_on='Time', right_on='Time_H1', how='left')
-            print("Merge successful.")
-        except KeyError as e:
-            print(f"Merge failed. Error: {e}")
-    else:
-        print("Column 'Time_H1' not found in higher data.")
-
-
-# Updated Backtesting Function with Higher Timeframes
-def backtest_with_higher_timeframes(data, initial_balance=1000):
-    balance = initial_balance
-    positions = []
-    logging.info("Starting backtest with higher timeframe confirmation...")
-    
-    for i in range(1, len(data)):
-        row = data.iloc[i]
-        prev_row = data.iloc[i - 1]
-
-        # Example strategy using higher timeframes
-        if not positions:  # Open position logic
-            if row['RSI'] < 30 and row['RSI_H1'] > 40 and row['MACD_histogram'] > 0:
-                positions.append({'type': 'long', 'entry_price': row['close'], 'entry_time': row['Time']})
-                logging.info(f"Opening long position at {row['close']} on {row['Time']}.")
-            elif row['RSI'] > 70 and row['RSI_H1'] < 60 and row['MACD_histogram'] < 0:
-                positions.append({'type': 'short', 'entry_price': row['close'], 'entry_time': row['Time']})
-                logging.info(f"Opening short position at {row['close']} on {row['Time']}.")
-
-        # Close position logic
-        for position in positions[:]:
-            if position['type'] == 'long' and (row['RSI'] > 70 or row['MACD_histogram_H1'] < 0):
-                profit = row['close'] - position['entry_price']
-                balance += profit
-                positions.remove(position)
-                logging.info(f"Closing long position at {row['close']} on {row['Time']}. Profit: {profit}")
-            elif position['type'] == 'short' and (row['RSI'] < 30 or row['MACD_histogram_H1'] > 0):
-                profit = position['entry_price'] - row['close']
-                balance += profit
-                positions.remove(position)
-                logging.info(f"Closing short position at {row['close']} on {row['Time']}. Profit: {profit}")
-
-    logging.info(f"Backtest completed. Final balance: {balance}")
-    return balance
-
-# Run the backtest with the updated strategy
-final_balance = backtest_with_higher_timeframes(current_data)
-logging.info(f"Final account balance after backtesting: {final_balance}")
+    # Log the fetched higher timeframe data
+    logging.info(f"Fetched data for higher timeframe ({tf}):")
+    logging.info(data.head())
 
 # Save processed data to CSV
 logging.info("Saving processed data to 'processed_data.csv'...")
