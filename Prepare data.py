@@ -59,7 +59,6 @@ def fetch_data(symbol, timeframe, start_datetime, end_datetime):
     return data
 
 
-
 # Function to get dynamic higher timeframes
 def get_higher_timeframes(current_timeframe):
     timeframe_minutes = {
