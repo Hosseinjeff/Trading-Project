@@ -3,6 +3,10 @@ import MetaTrader5 as mt5
 import logging
 import datetime
 import numpy as np
+from tqdm import tqdm  # Import tqdm for the progress bar
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 timeframe_map = {
     'M1': mt5.TIMEFRAME_M1,
@@ -15,9 +19,6 @@ timeframe_map = {
     'W1': mt5.TIMEFRAME_W1,
     'MN1': mt5.TIMEFRAME_MN1
 }
-
-# Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Function to calculate RSI
 def calculate_rsi(data, period=14):
@@ -102,7 +103,7 @@ logging.info(f"Fetching current data for {symbol} on timeframe {current_timefram
 current_data = fetch_data(symbol, current_timeframe, start_time, end_time)
 
 higher_data = {}
-for tf in higher_timeframes:
+for tf in tqdm(higher_timeframes, desc="Fetching higher timeframes", unit="timeframe"):
     logging.info(f"Fetching higher timeframe data for {symbol} on {tf}...")
     higher_data[tf] = fetch_data(symbol, tf, start_time, end_time)
 
@@ -125,7 +126,7 @@ logging.info(f"Calculated indicators for {current_timeframe}:")
 logging.info(current_data[['Time', 'EMA_50', 'RSI', 'MACD', 'MACD_signal', 'MACD_histogram', 'Bollinger_upper', 'Bollinger_lower']].head())
 
 # Calculate indicators for higher timeframes and merge with current data
-for tf, data in higher_data.items():
+for tf, data in tqdm(higher_data.items(), desc="Calculating and merging higher timeframes", unit="timeframe"):
     logging.info(f"Calculating indicators for higher timeframe {tf}...")
     data = calculate_indicators(data)
     logging.info(f"Merging higher timeframe {tf} data with current data...")
@@ -141,5 +142,3 @@ for tf, data in higher_data.items():
 logging.info("Saving processed data to 'processed_data.csv'...")
 current_data.to_csv('processed_data.csv', index=False)
 logging.info(f"Processed data saved to 'processed_data.csv'.")
-
-# Further analysis or machine learning model integration can go here
