@@ -3,7 +3,19 @@ import MetaTrader5 as mt5
 import logging
 import datetime
 import numpy as np
+import logging
 from tqdm import tqdm  # Import tqdm for the progress bar
+from pathlib import Path
+
+# Create or get a logger
+logger = logging.getLogger()
+
+# Set up logging to a file if needed
+handler = logging.FileHandler('data.log')
+handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+logger.addHandler(handler)
+
+logger.setLevel(logging.INFO)  # You can change the logging level here
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -53,6 +65,11 @@ def fetch_data(symbol, timeframe, start_datetime, end_datetime):
         raise ValueError(f"Invalid timeframe: {timeframe}")
     logging.info(f"Fetching data for {symbol} from {start_datetime} to {end_datetime} on timeframe {timeframe}...")
     rates = mt5.copy_rates_range(symbol, mt5_timeframe, start_datetime, end_datetime)
+    
+    if len(rates) == 0:
+        logging.error(f"No data fetched for {symbol} from {start_datetime} to {end_datetime} on timeframe {timeframe}")
+        return pd.DataFrame()  # Return an empty DataFrame if no data is fetched
+    
     data = pd.DataFrame(rates)
     data['Time'] = pd.to_datetime(data['time'], unit='s')  # Convert timestamp to datetime
     data.drop(columns=['time'], inplace=True)  # Drop the original 'time' column
@@ -140,5 +157,18 @@ for tf, data in tqdm(higher_data.items(), desc="Calculating and merging higher t
 
 # Save processed data to CSV
 logging.info("Saving processed data to 'processed_data.csv'...")
-current_data.to_csv('processed_data.csv', index=False)
-logging.info(f"Processed data saved to 'processed_data.csv'.")
+# Get the current directory of the Python script
+current_directory = Path(__file__).resolve().parent
+
+# Get the path of the sister directory (assuming sibling directory is one level up)
+sister_directory = current_directory.parent / "data"
+
+# Ensure the "data" directory exists
+if not sister_directory.exists():
+    logging.info(f"Creating directory: {sister_directory}")
+    sister_directory.mkdir(parents=True, exist_ok=True)
+
+# Save processed data to CSV
+logging.info("Saving processed data to 'processed_data.csv'...")
+current_data.to_csv(sister_directory / 'processed_data.csv', index=False)
+logging.info(f"Processed data saved to '{sister_directory / 'processed_data.csv'}'.")
