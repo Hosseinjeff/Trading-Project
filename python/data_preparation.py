@@ -8,9 +8,10 @@ from pathlib import Path
 # Create or get a logger
 logger = logging.getLogger()
 
-# Set up logging to a file if needed
-handler = logging.FileHandler('data.log')
-handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+# Set up logging to a file in the parent directory
+log_file = Path(__file__).resolve().parent.parent / 'log.txt'
+handler = logging.FileHandler(log_file)
+handler.setFormatter(logging.Formatter(f'%(asctime)s - {Path(__file__).name} - %(message)s'))
 logger.addHandler(handler)
 
 logger.setLevel(logging.INFO)  # You can change the logging level here
@@ -25,7 +26,7 @@ current_directory = Path(__file__).resolve().parent
 sister_directory = current_directory.parent / "data"
 
 # Function to load and prepare data
-def prepare_data(file_path= sister_directory /'processed_data.csv', save_path= sister_directory / 'post_processed_data.csv'):
+def prepare_data(file_path=sister_directory / 'processed_data.csv', save_path=sister_directory / 'post_processed_data.csv'):
     logging.info(f"Starting data preparation process...")
 
     # Load the dataset
