@@ -1,7 +1,9 @@
-# data_calculation.py
 import pandas as pd
 import numpy as np
 import logging
+from pathlib import Path  # Import Path from pathlib
+import os
+
 # Create or get a logger
 logger = logging.getLogger()
 
@@ -16,8 +18,10 @@ logger.setLevel(logging.INFO)  # You can change the logging level here
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def log_step(message):
-    script_name = os.path.basename(__file__)
+def log_step(message, script_name=None):
+    """Log the step with the provided script name."""
+    if script_name is None:
+        script_name = os.path.basename(__file__)  # Default to current script if no name is provided
     logging.info(f'{script_name} - {message}')
 
 def calculate_ema(data, period):
@@ -52,7 +56,7 @@ def calculate_bollinger_bands(data, period=20, num_std_dev=2):
 
 def calculate_indicators(data, timeframe):
     """Calculate all indicators for a given timeframe."""
-    log_step(f"Calculating indicators for {timeframe}.")
+    log_step(f"Calculating indicators for {timeframe}.", script_name='data_calculation.py')
     data[f'EMA_50_{timeframe}'] = calculate_ema(data, 50)
     data[f'RSI_{timeframe}'] = calculate_rsi(data)
     macd, signal, hist = calculate_macd(data)
@@ -62,7 +66,7 @@ def calculate_indicators(data, timeframe):
     upper, lower = calculate_bollinger_bands(data)
     data[f'Bollinger_upper_{timeframe}'] = upper
     data[f'Bollinger_lower_{timeframe}'] = lower
-    log_step(f"Indicators calculated for {timeframe}.")
+    log_step(f"Indicators calculated for {timeframe}.", script_name='data_calculation.py')
     return data
 
 def process_data(data, timeframes):

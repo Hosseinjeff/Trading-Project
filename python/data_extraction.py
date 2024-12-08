@@ -1,9 +1,14 @@
+# data_extraction.py
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from data_calculation import process_data
 import logging
-from tqdm import tqdm  # Import tqdm for the progress bar
-from pathlib import Path
+from pathlib import Path  # Import Path from pathlib
+import numpy as np
+import os
+
+# Configure paths
+base_path = Path(__file__).resolve().parent.parent  # Parent folder
+data_folder = base_path / 'data'
 
 # Create or get a logger
 logger = logging.getLogger()
@@ -16,85 +21,60 @@ logger.addHandler(handler)
 
 logger.setLevel(logging.INFO)  # You can change the logging level here
 
-# Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+def log_step(message, script_name=None):
+    """Log the step with the provided script name."""
+    if script_name is None:
+        script_name = os.path.basename(__file__)  # Default to current script if no name is provided
+    logger.info(f'{script_name} - {message}')  # Use logger instead of logging
 
-# Get the current directory of the Python script
-current_directory = Path(__file__).resolve().parent
-
-# Get the path of the sister directory (assuming sibling directory is one level up)
-sister_directory = current_directory.parent / "data"
-
-# Function to load and prepare data
-def prepare_data(file_path=sister_directory / 'processed_data.csv', save_path=sister_directory / 'post_processed_data.csv'):
-    logging.info(f"Starting data preparation process...")
-
-    # Load the dataset
-    logging.info(f"Loading data from {file_path}...")
-    try:
-        data = pd.read_csv(file_path)
-        logging.info(f"Data loaded successfully. Shape of the data: {data.shape}")
-    except Exception as e:
-        logging.error(f"Error loading data from {file_path}: {e}")
-        return
-    
-    # Check for missing values and handle them (if any)
-    logging.info("Checking for missing values...")
-    if data.isnull().sum().any():
-        logging.info("Missing values found, filling missing values...")
-        data.fillna(method='ffill', inplace=True)  # Forward fill missing values
-        logging.info("Missing values filled.")
+def detect_timeframe(data):
+    """Detect the timeframe of the data by analyzing time differences."""
+    log_step("Detecting data timeframe.")
+    time_diff = data.index.to_series().diff().dt.total_seconds().dropna().mode()[0]
+    if time_diff == 60 * 5:
+        return "M5"
+    elif time_diff == 60 * 60:
+        return "H1"
+    elif time_diff == 60 * 240:
+        return "H4"
     else:
-        logging.info("No missing values found.")
-    
-    # Drop any unnecessary columns (if applicable)
-    logging.info("Dropping irrelevant columns...")
-    columns_to_drop = ['Time']  # Drop time or any other irrelevant columns for training
-    data.drop(columns=columns_to_drop, inplace=True, errors='ignore')
-    logging.info(f"Dropped columns: {columns_to_drop}")
+        raise ValueError("Unsupported timeframe detected.")
 
-    # Feature Scaling (Standardization)
-    logging.info("Scaling the features...")
-    scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(data)
-    logging.info("Feature scaling complete.")
-
-    # Convert the scaled data back to a DataFrame
-    scaled_data_df = pd.DataFrame(scaled_data, columns=data.columns)
-    
-    # Split the data into features (X) and target (y)
-    logging.info("Splitting data into features and target...")
-    X = scaled_data_df.drop(columns=['close'])  # Drop target variable
-    y = scaled_data_df['close']  # Target variable
-    logging.info(f"Features (X) shape: {X.shape}, Target (y) shape: {y.shape}")
-    
-    # Split the data into training and testing sets (80% train, 20% test)
-    logging.info("Splitting data into training and testing sets...")
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    logging.info(f"Training data shape: {X_train.shape}, Testing data shape: {X_test.shape}")
-    
-    # Add a new column to mark whether the row is for training or testing
-    X_train['Data_Split'] = 'train'
-    X_test['Data_Split'] = 'test'
-    
-    # Combine X_train, X_test, y_train, and y_test into one DataFrame
-    train_data = pd.concat([X_train, y_train], axis=1)
-    test_data = pd.concat([X_test, y_test], axis=1)
-    logging.info("Training and testing data combined.")
-    
-    # Combine the train and test datasets into one final dataset
-    final_data = pd.concat([train_data, test_data], axis=0)
-    logging.info(f"Final data shape after combining: {final_data.shape}")
-
-    # Save the processed data to CSV with a progress bar
-    logging.info(f"Saving processed data to {save_path}...")
+def fetch_data(file_name):
+    """Fetch data from a CSV file."""
+    file_path = data_folder / file_name
     try:
-        with tqdm(total=len(final_data), desc="Saving Data", unit="row") as pbar:
-            final_data.to_csv(save_path, index=False)
-            pbar.update(len(final_data))  # Update progress bar after saving
-        logging.info(f"Data saved successfully to {save_path}.")
+        data = pd.read_csv(file_path, parse_dates=['Time'], index_col='Time')
+        log_step(f"Data loaded successfully from {file_path}.")
+        return data
+    except FileNotFoundError:
+        log_step(f"Error: File not found at {file_path}.")
+        raise
     except Exception as e:
-        logging.error(f"Error saving data to {save_path}: {e}")
+        log_step(f"Error loading data from {file_path}: {e}")
+        raise
 
-# Call the function to prepare the data
-prepare_data()
+def prepare_and_save_data(input_file, output_file):
+    """Prepare data by detecting timeframe, requesting indicator calculation, and saving results."""
+    log_step(f"Preparing data from {input_file}.")
+    data = fetch_data(input_file)
+    try:
+        timeframe = detect_timeframe(data)
+        symbol = "EURUSD"  # Default symbol
+        log_step(f"Detected timeframe: {timeframe}. Presumed symbol: {symbol}.")
+        
+        # Process data for multiple timeframes (current, H1, H4)
+        timeframes = [timeframe, "H1", "H4"]
+        processed_data = process_data(data, timeframes)
+        
+        # Save processed data
+        output_path = data_folder / output_file
+        processed_data.to_csv(output_path)
+        log_step(f"Processed data saved to {output_path}.")
+    except Exception as e:
+        log_step(f"Error in data preparation: {e}")
+
+if __name__ == "__main__":
+    input_file = "data.csv"
+    output_file = "processed_data.csv"
+    prepare_and_save_data(input_file, output_file)
