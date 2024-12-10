@@ -1,61 +1,185 @@
-2024-12-10 06:43:07,033 - data_extraction - data_extraction - Starting data extraction process.
-2024-12-10 06:43:07,033 - data_extraction - utils - utils.py - Attempting to load data from data.csv.
-2024-12-10 06:43:07,056 - data_extraction - utils - utils.py - Data loaded successfully from C:\Users\Setin\Documents\GitHub\Trading-Project\data\data.csv.
-2024-12-10 06:43:07,058 - data_extraction - utils - utils.py - Detected timeframe: M5
-2024-12-10 06:43:07,058 - data_extraction - utils - utils.py - Processing indicators for M5.
-2024-12-10 06:43:07,058 - data_calculation - utils - utils.py - Processing data for timeframes: ['M5'].
-2024-12-10 06:43:07,058 - data_calculation - utils - utils.py - Processing indicators for M5: ['EMA_50_M5', 'RSI_M5', 'MACD_M5', 'MACD_signal_M5', 'MACD_histogram_M5', 'Bollinger_upper_M5', 'Bollinger_lower_M5']
-2024-12-10 06:43:07,058 - data_calculation - utils - utils.py - Calculating indicators for M5.
-2024-12-10 06:43:07,071 - data_calculation - data_calculation - Initial data snapshot:                         open     high      low    close  tick_volume  spread  real_volume
+2024-12-10 20:47:25,272 - data_extraction - utils - utils.py - Indicator configuration validated successfully.
+2024-12-10 20:47:25,272 - data_extraction - data_extraction - Loaded timeframes: []
+2024-12-10 20:47:25,273 - data_extraction - data_extraction - Loaded indicator configurations: {'EMA': {'periods': [12, 26, 50]}, 'RSI': {'periods': [14, 54, 224]}, 'MACD': {'fast_periods': [12], 'slow_periods': [26], 'signal_periods': [9]}, 'Bollinger': {'periods': [20], 'deviations': [2]}}
+2024-12-10 20:47:25,273 - data_extraction - data_extraction - Generated feature columns: {}
+2024-12-10 20:47:25,273 - data_extraction - data_extraction - Starting data extraction process.
+2024-12-10 20:47:25,273 - data_extraction - utils - utils.py - Attempting to load data from data.csv.
+2024-12-10 20:47:25,302 - data_extraction - utils - utils.py - Data loaded successfully from C:\Users\Setin\Documents\GitHub\Trading-Project\data\data.csv.
+2024-12-10 20:47:25,303 - data_extraction - utils - utils.py - Detected timeframe: M5 based on time difference: 300.0
+2024-12-10 20:47:25,304 - data_extraction - utils - utils.py - Detected timeframe: M5.
+2024-12-10 20:47:25,304 - data_extraction - utils - utils.py - Timeframes to process: M5
+2024-12-10 20:47:25,304 - data_extraction - utils - utils.py - Processing indicators.
+2024-12-10 20:47:25,304 - data_calculation - utils - utils.py - Processing data for timeframes: ['M5'].
+2024-12-10 20:47:25,304 - data_calculation - utils - utils.py - Processing M5.
+2024-12-10 20:47:25,304 - data_calculation - utils - utils.py - Calculating indicators for M5.
+2024-12-10 20:47:25,315 - data_calculation - data_calculation - Initial data snapshot:                         open     high      low    close  tick_volume  spread  real_volume
 Time                                                                                     
 2024-10-29 13:30:00  1.07980  1.08026  1.07980  1.08025          143       4            0
 2024-10-29 13:35:00  1.08026  1.08036  1.08001  1.08028          140       4            0
 2024-10-29 13:40:00  1.08028  1.08038  1.07991  1.07993          131       4            0
 2024-10-29 13:45:00  1.07993  1.08021  1.07983  1.07995          146       4            0
 2024-10-29 13:50:00  1.07995  1.08006  1.07974  1.07975          131       4            0
-2024-12-10 06:43:07,071 - data_calculation - data_calculation - Processing feature: EMA_50_M5
-2024-12-10 06:43:07,072 - data_calculation - data_calculation - Processing feature: RSI_M5
-2024-12-10 06:43:07,072 - data_calculation - data_calculation - Calculating RSI for 6324 data points with period: 14
-2024-12-10 06:43:07,077 - data_calculation - data_calculation - First few rows of close data:                        close
-Time                        
-2024-10-29 13:30:00  1.08025
-2024-10-29 13:35:00  1.08028
-2024-10-29 13:40:00  1.07993
-2024-10-29 13:45:00  1.07995
-2024-10-29 13:50:00  1.07975
-2024-12-10 06:43:07,082 - data_calculation - data_calculation - RSI calculation for first few values: Time
-2024-10-29 13:30:00   NaN
-2024-10-29 13:35:00   NaN
-2024-10-29 13:40:00   NaN
-2024-10-29 13:45:00   NaN
-2024-10-29 13:50:00   NaN
-Name: RSI_M5, dtype: float64
-2024-12-10 06:43:07,083 - data_calculation - data_calculation - Number of missing values in RSI_M5: 13
-2024-12-10 06:43:07,083 - data_calculation - data_calculation - Failed to calculate RSI_M5: Columns must be same length as key
+2024-12-10 20:47:25,315 - data_calculation - data_calculation - Unexpected error during M5 processing: 'M5'
+2024-12-10 20:47:25,316 - data_calculation - data_calculation - Completed processing for timeframes: ['M5'].
+2024-12-10 20:47:25,324 - data_extraction - data_extraction - Processed data sample:
+                        open     high      low    close  tick_volume  spread  real_volume
+Time                                                                                     
+2024-10-29 13:30:00  1.07980  1.08026  1.07980  1.08025          143       4            0
+2024-10-29 13:35:00  1.08026  1.08036  1.08001  1.08028          140       4            0
+2024-10-29 13:40:00  1.08028  1.08038  1.07991  1.07993          131       4            0
+2024-10-29 13:45:00  1.07993  1.08021  1.07983  1.07995          146       4            0
+2024-10-29 13:50:00  1.07995  1.08006  1.07974  1.07975          131       4            0
+2024-12-10 20:47:25,324 - data_extraction - utils - utils.py - Validating processed data.
+2024-12-10 20:47:25,324 - data_extraction - data_extraction - Unexpected error during preparation and saving: 'M5'
 Traceback (most recent call last):
-  File "c:\Users\Setin\Documents\GitHub\Trading-Project\python\data_calculation.py", line 97, in calculate_indicators
-    data[feature] = calculate_rsi(data, period, feature)
-  File "C:\Users\Setin\AppData\Roaming\Python\Python310\site-packages\pandas\core\frame.py", line 4301, in __setitem__
-    self._set_item_frame_value(key, value)
-  File "C:\Users\Setin\AppData\Roaming\Python\Python310\site-packages\pandas\core\frame.py", line 4429, in _set_item_frame_value
-    raise ValueError("Columns must be same length as key")
-ValueError: Columns must be same length as key
-2024-12-10 06:43:07,086 - data_calculation - data_calculation - Processing feature: MACD_M5
-2024-12-10 06:43:07,088 - data_calculation - data_calculation - Processing feature: MACD_signal_M5
-2024-12-10 06:43:07,089 - data_calculation - data_calculation - Processing feature: MACD_histogram_M5
-2024-12-10 06:43:07,090 - data_calculation - data_calculation - Processing feature: Bollinger_upper_M5
-2024-12-10 06:43:07,092 - data_calculation - data_calculation - Processing feature: Bollinger_lower_M5
-2024-12-10 06:43:07,112 - data_calculation - data_calculation - Indicators calculated for M5. Updated data snapshot:                         open     high      low    close  tick_volume  spread  ...  RSI_M5   MACD_M5  MACD_signal_M5  MACD_histogram_M5  Bollinger_upper_M5  Bollinger_lower_M5
-Time                                                                          ...                                                                                             
-2024-10-29 13:30:00  1.07980  1.08026  1.07980  1.08025          143       4  ...     NaN  0.000000        0.000000           0.000000                 NaN                 NaN
-2024-10-29 13:35:00  1.08026  1.08036  1.08001  1.08028          140       4  ...     NaN  0.000002        0.000002           0.000002                 NaN                 NaN
-2024-10-29 13:40:00  1.08028  1.08038  1.07991  1.07993          131       4  ...     NaN -0.000024       -0.000024          -0.000024                 NaN                 NaN
-2024-10-29 13:45:00  1.07993  1.08021  1.07983  1.07995          146       4  ...     NaN -0.000042       -0.000042          -0.000042                 NaN                 NaN
-2024-10-29 13:50:00  1.07995  1.08006  1.07974  1.07975          131       4  ...     NaN -0.000072       -0.000072          -0.000072                 NaN                 NaN
+  File "c:\Users\Setin\Documents\GitHub\Trading-Project\python\data_extraction.py", line 99, in prepare_and_save_data
+    validate_features(processed_data, feature_config[timeframe])
+KeyError: 'M5'
+2024-12-10 20:47:48,682 - data_extraction - utils - utils.py - Indicator configuration validated successfully.
+2024-12-10 20:47:48,682 - data_extraction - data_extraction - Loaded timeframes: []
+2024-12-10 20:47:48,682 - data_extraction - data_extraction - Loaded indicator configurations: {'EMA': {'periods': [12, 26, 50]}, 'RSI': {'periods': [14]}, 'MACD': {'fast_periods': [12], 'slow_periods': [26], 'signal_periods': [9]}, 'Bollinger': {'periods': [20], 'deviations': [2]}}
+2024-12-10 20:47:48,682 - data_extraction - data_extraction - Generated feature columns: {}
+2024-12-10 20:47:48,683 - data_extraction - data_extraction - Starting data extraction process.
+2024-12-10 20:47:48,683 - data_extraction - utils - utils.py - Attempting to load data from data.csv.
+2024-12-10 20:47:48,715 - data_extraction - utils - utils.py - Data loaded successfully from C:\Users\Setin\Documents\GitHub\Trading-Project\data\data.csv.
+2024-12-10 20:47:48,717 - data_extraction - utils - utils.py - Detected timeframe: M5 based on time difference: 300.0
+2024-12-10 20:47:48,717 - data_extraction - utils - utils.py - Detected timeframe: M5.
+2024-12-10 20:47:48,717 - data_extraction - utils - utils.py - Timeframes to process: M5
+2024-12-10 20:47:48,717 - data_extraction - utils - utils.py - Processing indicators.
+2024-12-10 20:47:48,717 - data_calculation - utils - utils.py - Processing data for timeframes: ['M5'].
+2024-12-10 20:47:48,717 - data_calculation - utils - utils.py - Processing M5.
+2024-12-10 20:47:48,718 - data_calculation - utils - utils.py - Calculating indicators for M5.
+2024-12-10 20:47:48,731 - data_calculation - data_calculation - Initial data snapshot:                         open     high      low    close  tick_volume  spread  real_volume
+Time                                                                                     
+2024-10-29 13:30:00  1.07980  1.08026  1.07980  1.08025          143       4            0
+2024-10-29 13:35:00  1.08026  1.08036  1.08001  1.08028          140       4            0
+2024-10-29 13:40:00  1.08028  1.08038  1.07991  1.07993          131       4            0
+2024-10-29 13:45:00  1.07993  1.08021  1.07983  1.07995          146       4            0
+2024-10-29 13:50:00  1.07995  1.08006  1.07974  1.07975          131       4            0
+2024-12-10 20:47:48,731 - data_calculation - data_calculation - Unexpected error during M5 processing: 'M5'
+2024-12-10 20:47:48,732 - data_calculation - data_calculation - Completed processing for timeframes: ['M5'].
+2024-12-10 20:47:48,741 - data_extraction - data_extraction - Processed data sample:
+                        open     high      low    close  tick_volume  spread  real_volume
+Time                                                                                     
+2024-10-29 13:30:00  1.07980  1.08026  1.07980  1.08025          143       4            0
+2024-10-29 13:35:00  1.08026  1.08036  1.08001  1.08028          140       4            0
+2024-10-29 13:40:00  1.08028  1.08038  1.07991  1.07993          131       4            0
+2024-10-29 13:45:00  1.07993  1.08021  1.07983  1.07995          146       4            0
+2024-10-29 13:50:00  1.07995  1.08006  1.07974  1.07975          131       4            0
+2024-12-10 20:47:48,741 - data_extraction - utils - utils.py - Validating processed data.
+2024-12-10 20:47:48,741 - data_extraction - data_extraction - Unexpected error during preparation and saving: 'M5'
+Traceback (most recent call last):
+  File "c:\Users\Setin\Documents\GitHub\Trading-Project\python\data_extraction.py", line 99, in prepare_and_save_data
+    validate_features(processed_data, feature_config[timeframe])
+KeyError: 'M5'
+2024-12-10 20:48:09,470 - data_extraction - utils - utils.py - Indicator configuration validated successfully.
+2024-12-10 20:48:09,471 - data_extraction - data_extraction - Loaded timeframes: []
+2024-12-10 20:48:09,471 - data_extraction - data_extraction - Loaded indicator configurations: {'EMA': {'periods': [12, 26, 50]}, 'RSI': {'periods': [14]}, 'MACD': {'fast_periods': [12], 'slow_periods': [26], 'signal_periods': [9]}, 'Bollinger': {'periods': [20], 'deviations': [2]}}
+2024-12-10 20:48:09,471 - data_extraction - data_extraction - Generated feature columns: {}
+2024-12-10 20:48:09,471 - data_extraction - data_extraction - Starting data extraction process.
+2024-12-10 20:48:09,471 - data_extraction - utils - utils.py - Attempting to load data from data.csv.
+2024-12-10 20:48:09,497 - data_extraction - utils - utils.py - Data loaded successfully from C:\Users\Setin\Documents\GitHub\Trading-Project\data\data.csv.
+2024-12-10 20:48:09,499 - data_extraction - utils - utils.py - Detected timeframe: M5 based on time difference: 300.0
+2024-12-10 20:48:09,499 - data_extraction - utils - utils.py - Detected timeframe: M5.
+2024-12-10 20:48:09,499 - data_extraction - utils - utils.py - Timeframes to process: M5
+2024-12-10 20:48:09,499 - data_extraction - utils - utils.py - Processing indicators.
+2024-12-10 20:48:09,499 - data_calculation - utils - utils.py - Processing data for timeframes: ['M5'].
+2024-12-10 20:48:09,499 - data_calculation - utils - utils.py - Processing M5.
+2024-12-10 20:48:09,499 - data_calculation - utils - utils.py - Calculating indicators for M5.
+2024-12-10 20:48:09,509 - data_calculation - data_calculation - Initial data snapshot:                         open     high      low    close  tick_volume  spread  real_volume
+Time                                                                                     
+2024-10-29 13:30:00  1.07980  1.08026  1.07980  1.08025          143       4            0
+2024-10-29 13:35:00  1.08026  1.08036  1.08001  1.08028          140       4            0
+2024-10-29 13:40:00  1.08028  1.08038  1.07991  1.07993          131       4            0
+2024-10-29 13:45:00  1.07993  1.08021  1.07983  1.07995          146       4            0
+2024-10-29 13:50:00  1.07995  1.08006  1.07974  1.07975          131       4            0
+2024-12-10 20:48:09,509 - data_calculation - data_calculation - Unexpected error during M5 processing: 'M5'
+2024-12-10 20:48:09,509 - data_calculation - data_calculation - Completed processing for timeframes: ['M5'].
+2024-12-10 20:48:09,517 - data_extraction - data_extraction - Processed data sample:
+                        open     high      low    close  tick_volume  spread  real_volume
+Time                                                                                     
+2024-10-29 13:30:00  1.07980  1.08026  1.07980  1.08025          143       4            0
+2024-10-29 13:35:00  1.08026  1.08036  1.08001  1.08028          140       4            0
+2024-10-29 13:40:00  1.08028  1.08038  1.07991  1.07993          131       4            0
+2024-10-29 13:45:00  1.07993  1.08021  1.07983  1.07995          146       4            0
+2024-10-29 13:50:00  1.07995  1.08006  1.07974  1.07975          131       4            0
+2024-12-10 20:48:09,517 - data_extraction - utils - utils.py - Validating processed data.
+2024-12-10 20:48:09,517 - data_extraction - data_extraction - Unexpected error during preparation and saving: 'M5'
+Traceback (most recent call last):
+  File "c:\Users\Setin\Documents\GitHub\Trading-Project\python\data_extraction.py", line 99, in prepare_and_save_data
+    validate_features(processed_data, feature_config[timeframe])
+KeyError: 'M5'
+2024-12-10 20:48:38,083 - data_extraction - utils - utils.py - Indicator configuration validated successfully.
+2024-12-10 20:48:38,083 - data_extraction - data_extraction - Loaded timeframes: ['M5']
+2024-12-10 20:48:38,083 - data_extraction - data_extraction - Loaded indicator configurations: {'EMA': {'periods': [12, 26, 50]}, 'RSI': {'periods': [14, 56, 224]}, 'MACD': {'fast_periods': [12], 'slow_periods': [26], 'signal_periods': [9]}, 'Bollinger': {'periods': [20], 'deviations': [2]}}
+2024-12-10 20:48:38,084 - data_extraction - data_extraction - Generated feature columns: {'M5': ['EMA_12_M5', 'EMA_26_M5', 'EMA_50_M5', 'RSI_14_M5', 'RSI_56_M5', 'RSI_224_M5', 'MACD_12_26_9_M5', 'Bollinger_20_2_M5_Upper', 'Bollinger_20_2_M5_Middle', 'Bollinger_20_2_M5_Lower']}
+2024-12-10 20:48:38,084 - data_extraction - data_extraction - Starting data extraction process.
+2024-12-10 20:48:38,084 - data_extraction - utils - utils.py - Attempting to load data from data.csv.
+2024-12-10 20:48:38,110 - data_extraction - utils - utils.py - Data loaded successfully from C:\Users\Setin\Documents\GitHub\Trading-Project\data\data.csv.
+2024-12-10 20:48:38,112 - data_extraction - utils - utils.py - Detected timeframe: M5 based on time difference: 300.0
+2024-12-10 20:48:38,112 - data_extraction - utils - utils.py - Detected timeframe: M5.
+2024-12-10 20:48:38,112 - data_extraction - utils - utils.py - Timeframes to process: M5
+2024-12-10 20:48:38,113 - data_extraction - utils - utils.py - Processing indicators.
+2024-12-10 20:48:38,113 - data_calculation - utils - utils.py - Processing data for timeframes: ['M5'].
+2024-12-10 20:48:38,113 - data_calculation - utils - utils.py - Processing M5.
+2024-12-10 20:48:38,113 - data_calculation - utils - utils.py - Calculating indicators for M5.
+2024-12-10 20:48:38,123 - data_calculation - data_calculation - Initial data snapshot:                         open     high      low    close  tick_volume  spread  real_volume
+Time                                                                                     
+2024-10-29 13:30:00  1.07980  1.08026  1.07980  1.08025          143       4            0
+2024-10-29 13:35:00  1.08026  1.08036  1.08001  1.08028          140       4            0
+2024-10-29 13:40:00  1.08028  1.08038  1.07991  1.07993          131       4            0
+2024-10-29 13:45:00  1.07993  1.08021  1.07983  1.07995          146       4            0
+2024-10-29 13:50:00  1.07995  1.08006  1.07974  1.07975          131       4            0
+2024-12-10 20:48:38,136 - data_calculation - data_calculation - Failed to calculate Bollinger_20_2_M5_Upper: too many values to unpack (expected 3)
+2024-12-10 20:48:38,136 - data_calculation - data_calculation - Validation failed for M5: Critical calculation error for Bollinger_20_2_M5_Upper.
+2024-12-10 20:48:38,136 - data_calculation - data_calculation - Completed processing for timeframes: ['M5'].
+2024-12-10 20:48:38,165 - data_extraction - data_extraction - Processed data sample:
+                        open     high      low    close  tick_volume  spread  real_volume  ...  RSI_14_M5  RSI_56_M5  RSI_224_M5  MACD_12_26_9_M5  Bollinger_20_2_M5_Upper  Bollinger_20_2_M5_Middle  Bollinger_20_2_M5_Lower
+Time                                                                                       ...                                                                                                                               
+2024-10-29 13:30:00  1.07980  1.08026  1.07980  1.08025          143       4            0  ...        NaN        NaN         NaN         0.000000                      NaN                       NaN                      NaN
+2024-10-29 13:35:00  1.08026  1.08036  1.08001  1.08028          140       4            0  ...        NaN        NaN         NaN         0.000002                      NaN                       NaN                      NaN
+2024-10-29 13:40:00  1.08028  1.08038  1.07991  1.07993          131       4            0  ...        NaN        NaN         NaN        -0.000024                      NaN                       NaN                      NaN
+2024-10-29 13:45:00  1.07993  1.08021  1.07983  1.07995          146       4            0  ...        NaN        NaN         NaN        -0.000042                      NaN                       NaN                      NaN
+2024-10-29 13:50:00  1.07995  1.08006  1.07974  1.07975          131       4            0  ...        NaN        NaN         NaN        -0.000072                      NaN                       NaN                      NaN
 
-[5 rows x 14 columns]
-2024-12-10 06:43:07,112 - data_calculation - data_calculation - Feature validation passed for M5
-2024-12-10 06:43:07,112 - data_calculation - data_calculation - Completed processing for timeframes: ['M5'].
-2024-12-10 06:43:07,112 - data_extraction - utils - utils.py - Validating processed data.
-2024-12-10 06:43:07,112 - data_extraction - utils - utils.py - Feature validation passed for: EMA_50_M5, RSI_M5, MACD_M5, MACD_signal_M5, MACD_histogram_M5, Bollinger_upper_M5, Bollinger_lower_M5
-2024-12-10 06:43:07,236 - data_extraction - utils - utils.py - Processed data saved to C:\Users\Setin\Documents\GitHub\Trading-Project\data\processed_data.csv. Metadata saved to C:\Users\Setin\Documents\GitHub\Trading-Project\data\features_metadata.json.
+[5 rows x 17 columns]
+2024-12-10 20:48:38,165 - data_extraction - utils - utils.py - Validating processed data.
+2024-12-10 20:48:38,166 - data_extraction - utils - utils.py - Feature validation passed for: EMA_12_M5, EMA_26_M5, EMA_50_M5, RSI_14_M5, RSI_56_M5, RSI_224_M5, MACD_12_26_9_M5, Bollinger_20_2_M5_Upper, Bollinger_20_2_M5_Middle, Bollinger_20_2_M5_Lower
+2024-12-10 20:48:38,373 - data_extraction - data_extraction - Data preparation and saving completed successfully.
+2024-12-10 20:49:13,009 - data_extraction - utils - utils.py - Indicator configuration validated successfully.
+2024-12-10 20:49:13,009 - data_extraction - data_extraction - Loaded timeframes: ['M5']
+2024-12-10 20:49:13,010 - data_extraction - data_extraction - Loaded indicator configurations: {'EMA': {'periods': [12, 26, 50]}, 'RSI': {'periods': [14, 56, 224]}, 'MACD': {'fast_periods': [12], 'slow_periods': [26], 'signal_periods': [9]}, 'Bollinger': {'periods': [20, 80, 320], 'deviations': [2]}}
+2024-12-10 20:49:13,010 - data_extraction - data_extraction - Generated feature columns: {'M5': ['EMA_12_M5', 'EMA_26_M5', 'EMA_50_M5', 'RSI_14_M5', 'RSI_56_M5', 'RSI_224_M5', 'MACD_12_26_9_M5', 'Bollinger_20_2_M5_Upper', 'Bollinger_20_2_M5_Middle', 'Bollinger_20_2_M5_Lower', 'Bollinger_80_2_M5_Upper', 'Bollinger_80_2_M5_Middle', 'Bollinger_80_2_M5_Lower', 'Bollinger_320_2_M5_Upper', 'Bollinger_320_2_M5_Middle', 'Bollinger_320_2_M5_Lower']}
+2024-12-10 20:49:13,010 - data_extraction - data_extraction - Starting data extraction process.
+2024-12-10 20:49:13,010 - data_extraction - utils - utils.py - Attempting to load data from data.csv.
+2024-12-10 20:49:13,041 - data_extraction - utils - utils.py - Data loaded successfully from C:\Users\Setin\Documents\GitHub\Trading-Project\data\data.csv.
+2024-12-10 20:49:13,043 - data_extraction - utils - utils.py - Detected timeframe: M5 based on time difference: 300.0
+2024-12-10 20:49:13,043 - data_extraction - utils - utils.py - Detected timeframe: M5.
+2024-12-10 20:49:13,043 - data_extraction - utils - utils.py - Timeframes to process: M5
+2024-12-10 20:49:13,043 - data_extraction - utils - utils.py - Processing indicators.
+2024-12-10 20:49:13,043 - data_calculation - utils - utils.py - Processing data for timeframes: ['M5'].
+2024-12-10 20:49:13,044 - data_calculation - utils - utils.py - Processing M5.
+2024-12-10 20:49:13,044 - data_calculation - utils - utils.py - Calculating indicators for M5.
+2024-12-10 20:49:13,058 - data_calculation - data_calculation - Initial data snapshot:                         open     high      low    close  tick_volume  spread  real_volume
+Time                                                                                     
+2024-10-29 13:30:00  1.07980  1.08026  1.07980  1.08025          143       4            0
+2024-10-29 13:35:00  1.08026  1.08036  1.08001  1.08028          140       4            0
+2024-10-29 13:40:00  1.08028  1.08038  1.07991  1.07993          131       4            0
+2024-10-29 13:45:00  1.07993  1.08021  1.07983  1.07995          146       4            0
+2024-10-29 13:50:00  1.07995  1.08006  1.07974  1.07975          131       4            0
+2024-12-10 20:49:13,075 - data_calculation - data_calculation - Failed to calculate Bollinger_20_2_M5_Upper: too many values to unpack (expected 3)
+2024-12-10 20:49:13,075 - data_calculation - data_calculation - Validation failed for M5: Critical calculation error for Bollinger_20_2_M5_Upper.
+2024-12-10 20:49:13,075 - data_calculation - data_calculation - Completed processing for timeframes: ['M5'].
+2024-12-10 20:49:13,104 - data_extraction - data_extraction - Processed data sample:
+                        open     high      low    close  tick_volume  spread  real_volume  ...  RSI_14_M5  RSI_56_M5  RSI_224_M5  MACD_12_26_9_M5  Bollinger_20_2_M5_Upper  Bollinger_20_2_M5_Middle  Bollinger_20_2_M5_Lower
+Time                                                                                       ...                                                                                                                               
+2024-10-29 13:30:00  1.07980  1.08026  1.07980  1.08025          143       4            0  ...        NaN        NaN         NaN         0.000000                      NaN                       NaN                      NaN
+2024-10-29 13:35:00  1.08026  1.08036  1.08001  1.08028          140       4            0  ...        NaN        NaN         NaN         0.000002                      NaN                       NaN                      NaN
+2024-10-29 13:40:00  1.08028  1.08038  1.07991  1.07993          131       4            0  ...        NaN        NaN         NaN        -0.000024                      NaN                       NaN                      NaN
+2024-10-29 13:45:00  1.07993  1.08021  1.07983  1.07995          146       4            0  ...        NaN        NaN         NaN        -0.000042                      NaN                       NaN                      NaN
+2024-10-29 13:50:00  1.07995  1.08006  1.07974  1.07975          131       4            0  ...        NaN        NaN         NaN        -0.000072                      NaN                       NaN                      NaN
+
+[5 rows x 17 columns]
+2024-12-10 20:49:13,105 - data_extraction - utils - utils.py - Validating processed data.
+2024-12-10 20:49:13,105 - data_extraction - data_extraction - Missing features: ['Bollinger_80_2_M5_Upper', 'Bollinger_80_2_M5_Middle', 'Bollinger_80_2_M5_Lower', 'Bollinger_320_2_M5_Upper', 'Bollinger_320_2_M5_Middle', 'Bollinger_320_2_M5_Lower']
+2024-12-10 20:49:13,516 - data_extraction - data_extraction - Data preparation and saving completed successfully.

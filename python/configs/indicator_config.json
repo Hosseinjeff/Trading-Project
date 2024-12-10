@@ -1,6 +1,20 @@
 {
-    "EMA": {"period": 50},
-    "RSI": {"period": 14},
-    "MACD": {"fast_period": 12, "slow_period": 26, "signal_period": 9},
-    "Bollinger": {"period": 20, "num_std_dev": 2}
+    "timeframes": ["M5"], 
+    "indicators": {
+        "EMA": {
+            "periods": [12, 26, 50]
+        },
+        "RSI": {
+            "periods": [14, 56, 224]
+        },
+        "MACD": {
+            "fast_periods": [12],
+            "slow_periods": [26],
+            "signal_periods": [9]
+        },
+        "Bollinger": {
+            "periods": [20],
+            "deviations": [2]
+        }
+    }
 }
