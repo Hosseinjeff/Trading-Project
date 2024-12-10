@@ -1,0 +1,6 @@
+{
+    "EMA": {"period": 50},
+    "RSI": {"period": 14},
+    "MACD": {"fast_period": 12, "slow_period": 26, "signal_period": 9},
+    "Bollinger": {"period": 20, "num_std_dev": 2}
+}

@@ -74,7 +74,7 @@ def train_model(file_path= sister_directory / 'post_processed_data.csv'):
     sister_directory = current_directory.parent / "models"
 
     # Save the trained model, scaler, and feature columns
-    model_filename = sister_directory / 'trading_model.pkl'
+    model_filename = sister_directory / 'trained_model.pkl'
     scaler_filename = sister_directory / 'scaler.pkl'
     features_filename = sister_directory / 'features.pkl'
     

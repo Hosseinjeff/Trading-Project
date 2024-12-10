@@ -1,0 +1,1 @@
+{"M5": ["EMA_50_M5", "RSI_M5", "MACD_M5", "MACD_signal_M5", "MACD_histogram_M5", "Bollinger_upper_M5", "Bollinger_lower_M5"], "H1": ["EMA_50_H1", "RSI_H1", "MACD_H1", "MACD_signal_H1", "MACD_histogram_H1", "Bollinger_upper_H1", "Bollinger_lower_H1"]}

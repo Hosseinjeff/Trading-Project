@@ -1,0 +1,61 @@
+2024-12-10 06:43:07,033 - data_extraction - data_extraction - Starting data extraction process.
+2024-12-10 06:43:07,033 - data_extraction - utils - utils.py - Attempting to load data from data.csv.
+2024-12-10 06:43:07,056 - data_extraction - utils - utils.py - Data loaded successfully from C:\Users\Setin\Documents\GitHub\Trading-Project\data\data.csv.
+2024-12-10 06:43:07,058 - data_extraction - utils - utils.py - Detected timeframe: M5
+2024-12-10 06:43:07,058 - data_extraction - utils - utils.py - Processing indicators for M5.
+2024-12-10 06:43:07,058 - data_calculation - utils - utils.py - Processing data for timeframes: ['M5'].
+2024-12-10 06:43:07,058 - data_calculation - utils - utils.py - Processing indicators for M5: ['EMA_50_M5', 'RSI_M5', 'MACD_M5', 'MACD_signal_M5', 'MACD_histogram_M5', 'Bollinger_upper_M5', 'Bollinger_lower_M5']
+2024-12-10 06:43:07,058 - data_calculation - utils - utils.py - Calculating indicators for M5.
+2024-12-10 06:43:07,071 - data_calculation - data_calculation - Initial data snapshot:                         open     high      low    close  tick_volume  spread  real_volume
+Time                                                                                     
+2024-10-29 13:30:00  1.07980  1.08026  1.07980  1.08025          143       4            0
+2024-10-29 13:35:00  1.08026  1.08036  1.08001  1.08028          140       4            0
+2024-10-29 13:40:00  1.08028  1.08038  1.07991  1.07993          131       4            0
+2024-10-29 13:45:00  1.07993  1.08021  1.07983  1.07995          146       4            0
+2024-10-29 13:50:00  1.07995  1.08006  1.07974  1.07975          131       4            0
+2024-12-10 06:43:07,071 - data_calculation - data_calculation - Processing feature: EMA_50_M5
+2024-12-10 06:43:07,072 - data_calculation - data_calculation - Processing feature: RSI_M5
+2024-12-10 06:43:07,072 - data_calculation - data_calculation - Calculating RSI for 6324 data points with period: 14
+2024-12-10 06:43:07,077 - data_calculation - data_calculation - First few rows of close data:                        close
+Time                        
+2024-10-29 13:30:00  1.08025
+2024-10-29 13:35:00  1.08028
+2024-10-29 13:40:00  1.07993
+2024-10-29 13:45:00  1.07995
+2024-10-29 13:50:00  1.07975
+2024-12-10 06:43:07,082 - data_calculation - data_calculation - RSI calculation for first few values: Time
+2024-10-29 13:30:00   NaN
+2024-10-29 13:35:00   NaN
+2024-10-29 13:40:00   NaN
+2024-10-29 13:45:00   NaN
+2024-10-29 13:50:00   NaN
+Name: RSI_M5, dtype: float64
+2024-12-10 06:43:07,083 - data_calculation - data_calculation - Number of missing values in RSI_M5: 13
+2024-12-10 06:43:07,083 - data_calculation - data_calculation - Failed to calculate RSI_M5: Columns must be same length as key
+Traceback (most recent call last):
+  File "c:\Users\Setin\Documents\GitHub\Trading-Project\python\data_calculation.py", line 97, in calculate_indicators
+    data[feature] = calculate_rsi(data, period, feature)
+  File "C:\Users\Setin\AppData\Roaming\Python\Python310\site-packages\pandas\core\frame.py", line 4301, in __setitem__
+    self._set_item_frame_value(key, value)
+  File "C:\Users\Setin\AppData\Roaming\Python\Python310\site-packages\pandas\core\frame.py", line 4429, in _set_item_frame_value
+    raise ValueError("Columns must be same length as key")
+ValueError: Columns must be same length as key
+2024-12-10 06:43:07,086 - data_calculation - data_calculation - Processing feature: MACD_M5
+2024-12-10 06:43:07,088 - data_calculation - data_calculation - Processing feature: MACD_signal_M5
+2024-12-10 06:43:07,089 - data_calculation - data_calculation - Processing feature: MACD_histogram_M5
+2024-12-10 06:43:07,090 - data_calculation - data_calculation - Processing feature: Bollinger_upper_M5
+2024-12-10 06:43:07,092 - data_calculation - data_calculation - Processing feature: Bollinger_lower_M5
+2024-12-10 06:43:07,112 - data_calculation - data_calculation - Indicators calculated for M5. Updated data snapshot:                         open     high      low    close  tick_volume  spread  ...  RSI_M5   MACD_M5  MACD_signal_M5  MACD_histogram_M5  Bollinger_upper_M5  Bollinger_lower_M5
+Time                                                                          ...                                                                                             
+2024-10-29 13:30:00  1.07980  1.08026  1.07980  1.08025          143       4  ...     NaN  0.000000        0.000000           0.000000                 NaN                 NaN
+2024-10-29 13:35:00  1.08026  1.08036  1.08001  1.08028          140       4  ...     NaN  0.000002        0.000002           0.000002                 NaN                 NaN
+2024-10-29 13:40:00  1.08028  1.08038  1.07991  1.07993          131       4  ...     NaN -0.000024       -0.000024          -0.000024                 NaN                 NaN
+2024-10-29 13:45:00  1.07993  1.08021  1.07983  1.07995          146       4  ...     NaN -0.000042       -0.000042          -0.000042                 NaN                 NaN
+2024-10-29 13:50:00  1.07995  1.08006  1.07974  1.07975          131       4  ...     NaN -0.000072       -0.000072          -0.000072                 NaN                 NaN
+
+[5 rows x 14 columns]
+2024-12-10 06:43:07,112 - data_calculation - data_calculation - Feature validation passed for M5
+2024-12-10 06:43:07,112 - data_calculation - data_calculation - Completed processing for timeframes: ['M5'].
+2024-12-10 06:43:07,112 - data_extraction - utils - utils.py - Validating processed data.
+2024-12-10 06:43:07,112 - data_extraction - utils - utils.py - Feature validation passed for: EMA_50_M5, RSI_M5, MACD_M5, MACD_signal_M5, MACD_histogram_M5, Bollinger_upper_M5, Bollinger_lower_M5
+2024-12-10 06:43:07,236 - data_extraction - utils - utils.py - Processed data saved to C:\Users\Setin\Documents\GitHub\Trading-Project\data\processed_data.csv. Metadata saved to C:\Users\Setin\Documents\GitHub\Trading-Project\data\features_metadata.json.
