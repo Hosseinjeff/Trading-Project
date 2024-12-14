@@ -1,0 +1,5 @@
+2024-12-11 19:46:54,545 - predict - utils - utils.py - Features metadata loaded successfully.
+2024-12-11 19:46:54,546 - predict - utils - utils.py - Error loading model or scaler: [Errno 2] No such file or directory: 'C:\\Users\\Setin\\Documents\\GitHub\\Trading-Project\\models\\trained_model.pkl'
+2024-12-11 19:52:21,549 - predict - utils - utils.py - Features metadata loaded successfully.
+2024-12-11 19:52:21,564 - predict - utils - utils.py - Loaded model from C:\Users\Setin\Documents\GitHub\Trading-Project\models\features_20241211_043004.pkl.
+2024-12-11 19:52:21,564 - predict - utils - utils.py - Error loading model or scaler: [Errno 2] No such file or directory: 'C:\\Users\\Setin\\Documents\\GitHub\\Trading-Project\\models\\scaler.pkl'

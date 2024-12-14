@@ -1,0 +1,1 @@
+{"features": {"M5": ["EMA_12_M5", "EMA_26_M5", "EMA_50_M5", "RSI_14_M5", "RSI_56_M5", "RSI_224_M5", "MACD_12_26_9_M5", "Bollinger_20_2_M5_Upper", "Bollinger_20_2_M5_Middle", "Bollinger_20_2_M5_Lower"]}, "timeframes": ["M5"]}

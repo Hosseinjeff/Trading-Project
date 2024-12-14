@@ -1,95 +1,112 @@
+# predict.py
 import joblib
 import pandas as pd
-import numpy as np
-from data_calculation import process_data, log_step
-from pathlib import Path
+import json
 import os
+import sys
+from pathlib import Path
+from utils import realtime, features_metadata, model_folder, EA_folder, setup_logger, log_step, features_metadata, processed_data_path, post_processed_data_path,load_model_related_files
 
-# Configure paths
-base_path = Path(__file__).resolve().parent.parent  # Parent folder
-model_folder = base_path / 'models'
-data_folder = base_path / 'data'
+from data_calculation import process_data
 
-# Load pre-trained model and scaler
-model_path = model_folder / 'trained_model.pkl'
-scaler_path = model_folder / 'scaler.pkl'
+# Set up logger
+logger = setup_logger("predict")
 
-try:
-    model = joblib.load(model_path)
-    scaler = joblib.load(scaler_path)
-    log_step("Model and scaler loaded successfully.")
-except Exception as e:
-    log_step(f"Error loading model or scaler: {e}")
-    raise
+def generate_mock_data(file_path):
+    """Generate mock data if the file doesn't exist."""
+    log_step(logger, "Generating mock data for testing...")
+    data = pd.DataFrame({
+        'Time': pd.date_range(start="2024-12-01", periods=10, freq="H"),
+        'Open': [1.2] * 10,
+        'High': [1.25] * 10,
+        'Low': [1.15] * 10,
+        'Close': [1.22] * 10
+    })
+    data.set_index('Time', inplace=True)
+    data.to_csv(file_path)
+    log_step(logger, f"Mock data saved to {file_path}")
 
-def load_data(input_file):
+def load_data(file):
     """Load data for prediction."""
-    file_path = data_folder / input_file
+    file_path = EA_folder / file
+    if not file_path.exists():
+        generate_mock_data(file_path)
+
     try:
+        if not file_path.exists():
+            raise FileNotFoundError(f"File not found: {file_path}")
+
         data = pd.read_csv(file_path, parse_dates=['Time'], index_col='Time')
-        log_step(f"Data loaded successfully from {file_path}.")
+        log_step(logger, f"Data loaded successfully from {file_path}")
         return data
-    except FileNotFoundError:
-        log_step(f"Error: File not found at {file_path}.")
+    except FileNotFoundError as e:
+        log_step(logger, str(e))
+        raise
+    except pd.errors.EmptyDataError:
+        log_step(logger, f"File is empty: {file_path}")
         raise
     except Exception as e:
-        log_step(f"Error loading data from {file_path}: {e}")
+        log_step(logger, f"Error loading data: {e}")
         raise
 
-def calculate_features(data):
-    """Ensure all required features are calculated."""
-    # Assuming 'timeframe' is already detected in the input data, or it could be passed in
-    timeframes = ["M5", "H1", "H4"]
-    return process_data(data, timeframes)
+def prepare_features(data, model_metadata):
+    """Ensure data matches model-trained features."""
+    # Calculate features dynamically
+    timeframes = model_metadata.get('timeframes', [])
+    processed_data = process_data(data, timeframes, features_metadata, features_metadata)
 
-def prepare_input_features(data):
-    """Prepare the features for prediction."""
-    # Calculate the necessary features
-    data = calculate_features(data)
-    
-    # Select the required features for prediction
-    feature_columns = ['EMA_50_M5', 'RSI_M5', 'MACD_M5', 'Bollinger_upper_M5', 'Bollinger_lower_M5']
-    
-    # Make sure the columns are present in the processed data
-    if not all(col in data.columns for col in feature_columns):
-        log_step(f"Missing required columns: {feature_columns}")
-        raise ValueError("Missing required features for prediction.")
-    
-    X = data[feature_columns]
-    
-    # Scale the features
-    X_scaled = scaler.transform(X)
-    
-    return X_scaled
+    # Retain only required features
+    required_features = model_metadata.get('features', [])
+    missing_features = [feat for feat in required_features if feat not in processed_data.columns]
+    if missing_features:
+        raise ValueError(f"Missing required features: {missing_features}")
 
-def predict(data):
-    """Generate prediction using the model."""
-    X_scaled = prepare_input_features(data)
-    
-    # Make prediction using the model
+    return processed_data[required_features]
+
+def predict(file = realtime):
+    """Generate predictions using the loaded model."""
     try:
-        prediction = model.predict(X_scaled)
-        log_step(f"Prediction made: {prediction}")
-        return prediction
-    except Exception as e:
-        log_step(f"Error during prediction: {e}")
-        raise
+        # Load latest model, scaler, and features metadata
+        latest_model_path = max(model_folder.glob("best_trained_model_*.pkl"), key=os.path.getmtime)
+        scaler_path, features_path = load_model_related_files(latest_model_path)
 
-def save_prediction(prediction, output_file="prediction.txt"):
-    """Save the prediction to a file."""
-    output_path = data_folder / output_file
-    try:
-        with open(output_path, 'w') as file:
-            file.write(str(prediction))
-        log_step(f"Prediction saved to {output_path}.")
+        # Load model, scaler, and features metadata
+        model = joblib.load(latest_model_path)
+        scaler = joblib.load(scaler_path)
+        with open(features_path, 'r') as f:
+            model_metadata = json.load(f)
+
+        # Log metadata
+        log_step(logger, f"Model loaded from {latest_model_path}")
+        log_step(logger, f"Scaler loaded from {scaler_path}")
+        log_step(logger, f"Features metadata loaded from {features_path}")
+        log_step(logger, f"Model info: {model_metadata['model_name']}")
+        log_step(logger, f"Training timestamp: {model_metadata.get('training_timestamp')}")
+        log_step(logger, f"Model RMSE: {model_metadata['metrics']['rmse']}")
+
+        # Load and prepare input data
+        data = load_data(file)
+        features = prepare_features(data, model_metadata)
+
+        # Scale features
+        scaled_features = scaler.transform(features)
+
+        # Generate predictions
+        predictions = model.predict(scaled_features)
+
+        # Save predictions
+        predictions_df = pd.DataFrame({
+            'Time': data.index,
+            'Predicted_Close': predictions
+        })
+        predictions_df.to_csv(realtime, index=False)
+        log_step(logger, f"Predictions saved to {realtime}")
+        print("Prediction completed successfully.")
+
     except Exception as e:
-        log_step(f"Error saving prediction to {output_path}: {e}")
+        log_step(logger, f"Error during prediction: {e}")
+        print(f"Error during prediction: {e}")
+        raise
 
 if __name__ == "__main__":
-    input_file = "data.csv"  # This could be updated based on EA input or use other input methods
-    try:
-        data = load_data(input_file)
-        prediction = predict(data)
-        save_prediction(prediction)
-    except Exception as e:
-        log_step(f"Error during prediction process: {e}")
+    predict()

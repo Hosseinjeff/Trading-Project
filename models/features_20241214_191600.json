@@ -1,0 +1,58 @@
+{
+    "model_name": "RandomForestRegressor",
+    "model_parameters": {
+        "bootstrap": true,
+        "ccp_alpha": 0.0,
+        "criterion": "squared_error",
+        "max_depth": null,
+        "max_features": 1.0,
+        "max_leaf_nodes": null,
+        "max_samples": null,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 1,
+        "min_samples_split": 2,
+        "min_weight_fraction_leaf": 0.0,
+        "monotonic_cst": null,
+        "n_estimators": 100,
+        "n_jobs": null,
+        "oob_score": false,
+        "random_state": 42,
+        "verbose": 0,
+        "warm_start": false
+    },
+    "features": [
+        "Time",
+        "open",
+        "high",
+        "low",
+        "tick_volume",
+        "spread",
+        "real_volume",
+        "EMA_12_M5",
+        "EMA_26_M5",
+        "EMA_50_M5",
+        "RSI_14_M5",
+        "RSI_56_M5",
+        "RSI_224_M5",
+        "MACD_12_26_9_M5",
+        "Bollinger_20_2_M5_Upper",
+        "Bollinger_20_2_M5_Middle",
+        "Bollinger_20_2_M5_Lower",
+        "target"
+    ],
+    "target": "close",
+    "metrics": {
+        "rmse": 0.00019765105952654287,
+        "performance_metrics": {
+            "Random Forest": {
+                "RMSE": 0.00019765105952654287,
+                "MAE": 0.00013411557377047625
+            }
+        }
+    },
+    "training_data_info": {
+        "train_size": 3904,
+        "test_size": 976
+    },
+    "training_timestamp": "2024-12-14 19:16:00"
+}

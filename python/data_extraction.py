@@ -1,24 +1,22 @@
-# data_extraction.py
 import pandas as pd
-from data_calculation import process_data, validate_features  # Import process_data and validate_features
-from utils import setup_logger, log_step
-from pathlib import Path
-import logging
 import json
-import os
+from data_calculation import process_data, validate_features  # Import process_data and validate_features
+from utils import (
+    setup_logger,
+    log_step,
+    data_folder,
+    config_folder,
+    features_metadata,
+    indicator_config,
+    log_file,
+)
+from pathlib import Path
 
-logger = setup_logger('data_extraction')
-
-# Configure paths
-base_path = Path(__file__).resolve().parent.parent  # Parent folder
-data_folder = base_path / 'data'
-metadata_path = data_folder / 'features_metadata.json'
-config_folder = Path(__file__).resolve().parent / 'configs'
+logger = setup_logger('data_extraction', log_file=str(log_file))
 
 # Load timeframes and indicators dynamically from the configuration
-with open(config_folder / 'indicator_config.json', 'r') as f:
+with open(indicator_config, 'r') as f:
     config = json.load(f)
-
 
 def generate_feature_columns(timeframes, indicators):
     def generate_columns(indicator, params, tf):
@@ -34,7 +32,6 @@ def generate_feature_columns(timeframes, indicators):
         elif indicator == "Bollinger":
             for period in params.get("periods", []):
                 for deviation in params.get("deviations", []):
-                    # Correct column names for Bollinger Bands
                     columns.append(f"{indicator}_{period}_{deviation}_{tf}_Upper")
                     columns.append(f"{indicator}_{period}_{deviation}_{tf}_Middle")
                     columns.append(f"{indicator}_{period}_{deviation}_{tf}_Lower")
@@ -44,13 +41,6 @@ def generate_feature_columns(timeframes, indicators):
     for tf in timeframes:
         feature_columns[tf] = [col for ind, params in indicators.items() for col in generate_columns(ind, params, tf)]
     return feature_columns
-
-def validate_features(data, expected_features):
-    missing_features = [feature for feature in expected_features if feature not in data.columns]
-    if missing_features:
-        logger.warning(f"Missing features: {missing_features}")
-    else:
-        log_step(logger, f"Feature validation passed for: {', '.join(expected_features)}")
 
 def fetch_data(file_name):
     """Fetch data from a CSV file."""
@@ -98,11 +88,10 @@ def prepare_and_save_data(input_file, output_file):
         for timeframe in timeframes_to_process:
             validate_features(processed_data, feature_config[timeframe])
 
-
         # Step 6: Save the processed data
         output_path = data_folder / output_file
         processed_data.to_csv(output_path)
-        with open(metadata_path, 'w') as f:
+        with open(features_metadata, 'w') as f:
             json.dump({"features": feature_config, "timeframes": timeframes_to_process}, f)
 
         logger.info(f"Data preparation and saving completed successfully.")
@@ -135,6 +124,7 @@ def validate_indicator_config(indicator_config):
             raise ValueError(f"Missing keys {missing_keys} in configuration for {indicator}")
     log_step(logger, "Indicator configuration validated successfully.")
 
+# Load timeframes and indicators
 timeframes = config["timeframes"]
 indicator_config = config["indicators"]
 validate_indicator_config(indicator_config)
@@ -142,7 +132,6 @@ validate_indicator_config(indicator_config)
 logger.info(f"Loaded timeframes: {timeframes}")
 logger.info(f"Loaded indicator configurations: {indicator_config}")
 
-# This line seems to be already working correctly.
 feature_config = generate_feature_columns(timeframes, indicator_config)
 logger.info(f"Generated feature columns: {feature_config}")
 
