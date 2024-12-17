@@ -18,10 +18,9 @@ config_folder = current_folder / "configs"
 log_file = base_path / "project_log.log"
 features_metadata = config_folder / "features_metadata.json"
 indicator_config = config_folder / "indicator_config.json"
-prediction_output = EA_folder / "prediction.txt"
 processed_data_path = data_folder / 'processed_data.csv'
 post_processed_data_path = data_folder / 'post_processed_data.csv'
-realtime = EA_folder / 'realtime.json'
+db_path = EA_folder/ 'prediction_data.db'  # Path to your SQLite database
 
 # Append 'python' folder to system path for imports
 sys.path.append(str(current_folder))

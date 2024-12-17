@@ -1,3 +1,4 @@
+# data_extraction.py
 import pandas as pd
 import json
 from data_calculation import process_data, validate_features  # Import process_data and validate_features
@@ -80,7 +81,7 @@ def prepare_and_save_data(input_file, output_file):
 
         # Step 4: Process the data for the selected timeframes
         log_step(logger, "Processing indicators.")
-        processed_data = process_data(data, timeframes_to_process, feature_config, indicator_config)
+        processed_data = process_data(data, timeframes_to_process, feature_config)
         logger.info(f"Processed data sample:\n{processed_data.head()}")
 
         # Step 5: Validate processed data

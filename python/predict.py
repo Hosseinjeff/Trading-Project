@@ -1,112 +1,220 @@
 # predict.py
-import joblib
 import pandas as pd
+import numpy as np
 import json
 import os
-import sys
+import logging
+import sqlite3
 from pathlib import Path
-from utils import realtime, features_metadata, model_folder, EA_folder, setup_logger, log_step, features_metadata, processed_data_path, post_processed_data_path,load_model_related_files
+from utils import setup_logger, log_step, load_model_related_files, model_folder, db_path
+from data_calculation import calculate_indicators, validate_features
+from joblib import load as joblib_load
 
-from data_calculation import process_data
+# Use the shared logger from utils
+logger = setup_logger('predict')
 
-# Set up logger
-logger = setup_logger("predict")
-
-def generate_mock_data(file_path):
-    """Generate mock data if the file doesn't exist."""
-    log_step(logger, "Generating mock data for testing...")
-    data = pd.DataFrame({
-        'Time': pd.date_range(start="2024-12-01", periods=10, freq="H"),
-        'Open': [1.2] * 10,
-        'High': [1.25] * 10,
-        'Low': [1.15] * 10,
-        'Close': [1.22] * 10
-    })
-    data.set_index('Time', inplace=True)
-    data.to_csv(file_path)
-    log_step(logger, f"Mock data saved to {file_path}")
-
-def load_data(file):
-    """Load data for prediction."""
-    file_path = EA_folder / file
-    if not file_path.exists():
-        generate_mock_data(file_path)
-
+def create_connection(db_path = db_path):
+    """Create a connection to the SQLite database."""
     try:
-        if not file_path.exists():
-            raise FileNotFoundError(f"File not found: {file_path}")
+        conn = sqlite3.connect(db_path)
+        logger.info("Database connection established.")
+        return conn
+    except Exception as e:
+        logger.error(f"Error creating database connection: {e}")
+        raise
 
-        data = pd.read_csv(file_path, parse_dates=['Time'], index_col='Time')
-        log_step(logger, f"Data loaded successfully from {file_path}")
+def initialize_database(features_metadata):
+    """Initialize the database with required tables dynamically."""
+    try:
+        conn = create_connection()
+        
+        # Dynamically build the table schema from features_metadata
+        feature_columns = [f"{feature} REAL" for feature in features_metadata['features']]
+        schema_columns = ",\n".join(["timestamp DATETIME PRIMARY KEY", "Time TEXT"] + feature_columns + ["target REAL"])
+
+        processed_data_schema = f"""
+            CREATE TABLE IF NOT EXISTS processed_data (
+                {schema_columns}
+            )
+        """
+
+        ensure_table_exists(conn, "processed_data", schema=processed_data_schema)
+        conn.close()
+        logger.info("Database initialized with dynamic table schema based on model features.")
+    except Exception as e:
+        logger.error(f"Error initializing database: {e}")
+        raise
+
+def ensure_table_exists(conn, table_name, schema=None):
+    """Ensure that a table exists in the database."""
+    try:
+        query = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}';"
+        result = pd.read_sql(query, conn)
+        if result.empty:
+            if schema:
+                conn.execute(schema)
+                logger.info(f"Table '{table_name}' created with specified schema.")
+            else:
+                logger.warning(f"Table '{table_name}' does not exist and no schema provided.")
+    except Exception as e:
+        logger.error(f"Error ensuring table {table_name}: {e}")
+
+def load_feature_config():
+    """Load the feature configuration from the database."""
+    try:
+        conn = create_connection()
+        query = "SELECT * FROM feature_config"
+        feature_config = pd.read_sql(query, conn).to_dict(orient='records')[0]  # Assuming 1 record
+        conn.close()
+        logger.info("Feature configuration loaded.")
+        return feature_config
+    except Exception as e:
+        logger.error(f"Error loading feature configuration: {e}")
+        raise
+
+def load_indicator_config():
+    """Load indicator configuration from the database."""
+    try:
+        conn = create_connection()
+        query = "SELECT * FROM indicator_config"
+        indicator_config = pd.read_sql(query, conn).to_dict(orient='records')[0]  # Assuming 1 record
+        conn.close()
+        logger.info("Indicator configuration loaded.")
+        return indicator_config
+    except Exception as e:
+        logger.error(f"Error loading indicator configuration: {e}")
+        raise
+
+def load_data():
+    """Load the most recent data from the database."""
+    try:
+        conn = create_connection()
+        query = """
+            SELECT * FROM processed_data
+            ORDER BY timestamp DESC
+            LIMIT 100
+        """
+        data = pd.read_sql(query, conn)
+        conn.close()
+        logger.info("Data loaded successfully.")
         return data
-    except FileNotFoundError as e:
-        log_step(logger, str(e))
-        raise
-    except pd.errors.EmptyDataError:
-        log_step(logger, f"File is empty: {file_path}")
-        raise
     except Exception as e:
-        log_step(logger, f"Error loading data: {e}")
+        logger.error(f"Error loading data: {e}")
         raise
 
-def prepare_features(data, model_metadata):
-    """Ensure data matches model-trained features."""
-    # Calculate features dynamically
-    timeframes = model_metadata.get('timeframes', [])
-    processed_data = process_data(data, timeframes, features_metadata, features_metadata)
-
-    # Retain only required features
-    required_features = model_metadata.get('features', [])
-    missing_features = [feat for feat in required_features if feat not in processed_data.columns]
+def check_inference_readiness(data, features, required_points):
+    """Check if the database has enough data points for inference."""
+    missing_features = [feat for feat in features if feat not in data.columns]
     if missing_features:
-        raise ValueError(f"Missing required features: {missing_features}")
+        logger.info(f"Missing features: {missing_features}. Calculating...")
+        return False
+    
+    if len(data) < required_points:
+        logger.info(f"Not enough data points. Required: {required_points}, Available: {len(data)}")
+        return False
+    
+    logger.info("Sufficient data points and features available for inference.")
+    return True
 
-    return processed_data[required_features]
+from data_calculation import process_data  # Ensure process_data is imported
 
-def predict(file = realtime):
-    """Generate predictions using the loaded model."""
+def process_data_for_inference(required_features, required_points=100):
+    """
+    Process primary data to calculate necessary features dynamically,
+    ensuring readiness for inference.
+    """
     try:
-        # Load latest model, scaler, and features metadata
-        latest_model_path = max(model_folder.glob("best_trained_model_*.pkl"), key=os.path.getmtime)
-        scaler_path, features_path = load_model_related_files(latest_model_path)
+        conn = create_connection()
 
-        # Load model, scaler, and features metadata
-        model = joblib.load(latest_model_path)
-        scaler = joblib.load(scaler_path)
-        with open(features_path, 'r') as f:
-            model_metadata = json.load(f)
+        # Load primary data (raw, unprocessed data inserted by EA)
+        query = "SELECT * FROM processed_data ORDER BY timestamp ASC"
+        primary_data = pd.read_sql(query, conn)
 
-        # Log metadata
-        log_step(logger, f"Model loaded from {latest_model_path}")
-        log_step(logger, f"Scaler loaded from {scaler_path}")
-        log_step(logger, f"Features metadata loaded from {features_path}")
-        log_step(logger, f"Model info: {model_metadata['model_name']}")
-        log_step(logger, f"Training timestamp: {model_metadata.get('training_timestamp')}")
-        log_step(logger, f"Model RMSE: {model_metadata['metrics']['rmse']}")
+        # Load timeframes and indicator/feature configurations dynamically
+        feature_config = {"features": required_features}
+        indicator_config = load_indicator_config()
+        timeframes = indicator_config.get("timeframes", ["M1"])  # Default to M1 if not specified
 
-        # Load and prepare input data
-        data = load_data(file)
-        features = prepare_features(data, model_metadata)
+        # Process data using process_data (which internally calls calculate_indicators)
+        calculated_data = process_data(
+            primary_data, 
+            timeframes=timeframes, 
+            feature_config=feature_config, 
+            indicator_config=indicator_config
+        )
 
-        # Scale features
-        scaled_features = scaler.transform(features)
+        # Update database with calculated features
+        calculated_data.to_sql('processed_data', conn, if_exists='replace', index=False)
 
-        # Generate predictions
-        predictions = model.predict(scaled_features)
+        # Validate readiness for inference
+        if not check_inference_readiness(calculated_data, required_features, required_points):
+            logger.warning("Data is not yet ready for inference. Waiting for more data.")
+            conn.close()
+            return None
 
-        # Save predictions
-        predictions_df = pd.DataFrame({
-            'Time': data.index,
-            'Predicted_Close': predictions
-        })
-        predictions_df.to_csv(realtime, index=False)
-        log_step(logger, f"Predictions saved to {realtime}")
-        print("Prediction completed successfully.")
-
+        conn.close()
+        logger.info("Data processed and ready for inference.")
+        return calculated_data
     except Exception as e:
-        log_step(logger, f"Error during prediction: {e}")
-        print(f"Error during prediction: {e}")
+        logger.error(f"Error in data processing: {e}")
+        raise
+
+def load_latest_model():
+    """Automatically load the most recent model, scaler, and feature configuration."""
+    try:
+        model_files = list(model_folder.glob("*.pkl")) + list(model_folder.glob("*.json"))
+        model_files.sort(key=lambda x: x.stem.split('_')[-1], reverse=True)
+
+        model_file = next((f for f in model_files if 'best_trained_model' in f.stem), None)
+        scaler_file = next((f for f in model_files if 'scaler' in f.stem), None)
+        features_file = next((f for f in model_files if 'features' in f.stem), None)
+
+        if not model_file or not scaler_file or not features_file:
+            raise FileNotFoundError("Missing required model files.")
+
+        logger.info(f"Loaded latest model: {model_file.stem}")
+        return model_file, scaler_file, features_file
+    except Exception as e:
+        logger.error(f"Error loading the latest model files: {e}")
+        raise
+
+def make_prediction(model, scaler, features, data):
+    """Make predictions using the model."""
+    try:
+        scaled_data = scaler.transform(data[features])
+        predictions = model.predict(scaled_data)
+        logger.info("Predictions made successfully.")
+        return predictions
+    except Exception as e:
+        logger.error(f"Error making predictions: {e}")
+        raise
+
+def main():
+    """Main function to manage data flow, feature calculation, and inference."""
+    try:
+        # Load model and associated metadata
+        model_file, scaler_file, features_file = load_latest_model()
+        model = joblib_load(model_file)
+        scaler = joblib_load(scaler_file)
+        with open(features_file, 'r') as f:
+            features_metadata = json.load(f)
+        required_features = features_metadata['features']
+        required_points = features_metadata.get('required_points', 100)  # Default to 100 if unspecified
+
+        initialize_database(features_metadata)
+        
+        # Process data for inference
+        processed_data = None
+        while not processed_data:
+            processed_data = process_data_for_inference(required_features, required_points)
+
+        # Perform inference
+        predictions = make_prediction(model, scaler, required_features, processed_data)
+        logger.info(f"Predictions: {predictions}")
+        return predictions
+    except Exception as e:
+        logger.error(f"Error in main function: {e}")
         raise
 
 if __name__ == "__main__":
-    predict()
+    main()

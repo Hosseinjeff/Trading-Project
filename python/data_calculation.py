@@ -57,7 +57,7 @@ def validate_features(data, expected_features):
     else:
         log_step(logger, "Feature validation passed.")
 
-def calculate_indicators(data, timeframe, feature_config, indicator_config):
+def calculate_indicators(data, timeframe, feature_config):
     log_step(logger, f"Calculating indicators for {timeframe}.")
     logger.debug(f"Initial data snapshot: {data.head()}")
 
@@ -102,14 +102,14 @@ def calculate_indicators(data, timeframe, feature_config, indicator_config):
     return data
 
 # Process data for multiple timeframes dynamically
-def process_data(data, timeframes, feature_config, indicator_config):
+def process_data(data, timeframes, feature_config):
     log_step(logger, f"Processing data for timeframes: {timeframes}.")
     processed_data = data.copy()
 
     for timeframe in timeframes:
         log_step(logger, f"Processing {timeframe}.")
         try:
-            processed_data = calculate_indicators(processed_data, timeframe, feature_config, indicator_config)
+            processed_data = calculate_indicators(processed_data, timeframe, feature_config)
             validate_features(processed_data, feature_config[timeframe], timeframe)
         except ValueError as ve:
             logger.error(f"Validation failed for {timeframe}: {ve}")
